@@ -1,0 +1,57 @@
+" ====================================
+" Основные настройки
+" ====================================
+set encoding=utf-8
+syntax on
+set number
+set termguicolors
+set wildmode=longest,list
+
+" ====================================
+" Подключаем плагины через vim-plug
+" ====================================
+call plug#begin('~/.config/nvim/plugged')
+
+" Тема Catppuccin
+Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
+
+" Файловое дерево
+Plug 'nvim-tree/nvim-tree.lua'
+Plug 'nvim-tree/nvim-web-devicons'
+
+call plug#end()
+
+" ====================================
+" Включаем тему
+" ====================================
+colorscheme catppuccin
+
+" ====================================
+" Настройка nvim-tree
+" ====================================
+lua << EOF
+require("nvim-tree").setup({
+  view = {
+    width = 35,
+    side = "left",
+    auto_resize = true,
+  },
+  git = {
+    enable = true,
+  },
+  renderer = {
+    icons = {
+      show = {
+        file = true,
+        folder = true,
+        git = true,
+      },
+    },
+  },
+})
+EOF
+
+" Горячие клавиши для nvim-tree
+nnoremap <C-n> :NvimTreeToggle<CR>
+nnoremap <Leader>r :NvimTreeRefresh<CR>
+nnoremap <Leader>n :NvimTreeFindFile<CR>
