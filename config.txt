@@ -55,3 +55,27 @@ EOF
 nnoremap <C-n> :NvimTreeToggle<CR>
 nnoremap <Leader>r :NvimTreeRefresh<CR>
 nnoremap <Leader>n :NvimTreeFindFile<CR>
+
+" ====================================
+" Функция toggle терминала внизу
+" ====================================
+function! ToggleTerminal()
+  " Перебираем все окна
+  for w in range(1, winnr('$'))
+    let buf = winbufnr(w)
+    if getbufvar(buf, '&buftype') ==# 'terminal'
+      " Закрываем окно с терминалом
+      execute w . "wincmd c"
+      return
+    endif
+  endfor
+  " Если терминала нет — открываем новый снизу
+  belowright split
+  resize 15          " Высота терминала (можно менять)
+  terminal
+endfunction
+
+" Назначаем Ctrl+T для toggle
+nnoremap <C-t> :call ToggleTerminal()<CR>
+tnoremap <Esc> <C-\><C-n>
+
