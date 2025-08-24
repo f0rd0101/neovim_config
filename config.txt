@@ -34,7 +34,6 @@ require("nvim-tree").setup({
   view = {
     width = 35,
     side = "left",
-    auto_resize = true,
   },
   git = {
     enable = true,
@@ -57,25 +56,21 @@ nnoremap <Leader>r :NvimTreeRefresh<CR>
 nnoremap <Leader>n :NvimTreeFindFile<CR>
 
 " ====================================
-" Функция toggle терминала внизу
+" Терминал снизу (toggle)
 " ====================================
 function! ToggleTerminal()
-  " Перебираем все окна
   for w in range(1, winnr('$'))
     let buf = winbufnr(w)
     if getbufvar(buf, '&buftype') ==# 'terminal'
-      " Закрываем окно с терминалом
       execute w . "wincmd c"
       return
     endif
   endfor
-  " Если терминала нет — открываем новый снизу
   belowright split
-  resize 15          " Высота терминала (можно менять)
+  resize 15
   terminal
 endfunction
 
-" Назначаем Ctrl+T для toggle
+" Горячие клавиши
 nnoremap <C-t> :call ToggleTerminal()<CR>
 tnoremap <Esc> <C-\><C-n>
-
