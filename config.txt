@@ -19,6 +19,9 @@ Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 Plug 'nvim-tree/nvim-tree.lua'
 Plug 'nvim-tree/nvim-web-devicons'
 
+" Статуслайн с отображением git-ветки
+Plug 'nvim-lualine/lualine.nvim'
+
 call plug#end()
 
 " ====================================
@@ -27,9 +30,22 @@ call plug#end()
 colorscheme catppuccin
 
 " ====================================
-" Настройка nvim-tree
+" Настройка nvim-tree + логика переключения фокуса
 " ====================================
 lua << EOF
+-- Функция для переключения фокуса между деревом и активным окном
+function ToggleTreeFocus()
+  local view = require("nvim-tree.view")
+  if view.is_visible() then
+    local tree_win = view.get_winnr()
+    if vim.api.nvim_get_current_win() == tree_win then
+      vim.cmd("wincmd p") -- Вернуться к предыдущему окну (файл)
+    else
+      vim.api.nvim_set_current_win(tree_win) -- Переключить фокус на дерево
+    end
+  end
+end
+
 require("nvim-tree").setup({
   view = {
     width = 35,
@@ -48,12 +64,37 @@ require("nvim-tree").setup({
     },
   },
 })
+
+-- Горячие клавиши для дерева
+vim.api.nvim_set_keymap("n", "<C-n>", ":NvimTreeToggle<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<Leader>r", ":NvimTreeRefresh<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<Leader>n", ":NvimTreeFindFile<CR>", { noremap = true, silent = true })
+
+-- Новый биндинг для переключения фокуса между деревом и файлом
+vim.api.nvim_set_keymap("n", "<C-e>", ":lua ToggleTreeFocus()<CR>", { noremap = true, silent = true })
 EOF
 
-" Горячие клавиши для nvim-tree
-nnoremap <C-n> :NvimTreeToggle<CR>
-nnoremap <Leader>r :NvimTreeRefresh<CR>
-nnoremap <Leader>n :NvimTreeFindFile<CR>
+" ====================================
+" Статуслайн (lualine)
+" ====================================
+lua << EOF
+require('lualine').setup {
+  options = {
+    theme = 'catppuccin',
+    icons_enabled = true,
+    section_separators = { left = '', right = ''},
+    component_separators = { left = '', right = ''},
+  },
+  sections = {
+    lualine_a = {'mode'},
+    lualine_b = {'branch', 'diff', 'diagnostics'},
+    lualine_c = {'filename'},
+    lualine_x = {'encoding', 'fileformat', 'filetype'},
+    lualine_y = {'progress'},
+    lualine_z = {'location'}
+  }
+}
+EOF
 
 " ====================================
 " Терминал снизу (toggle)
@@ -71,6 +112,6 @@ function! ToggleTerminal()
   terminal
 endfunction
 
-" Горячие клавиши
+" Горячие клавиши для терминала
 nnoremap <C-t> :call ToggleTerminal()<CR>
 tnoremap <Esc> <C-\><C-n>
